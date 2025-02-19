@@ -106,3 +106,23 @@ FindAllMarkers(seurat_obj_filter,
                only.pos = TRUE,
                test.use = 'wilcox',
                slot = 'data')
+FeaturePlot(seurat_obj_filter,features = c('GPX1'),min.cutoff = 'q10')
+
+
+# Observe the identities of the object
+
+Idents(seurat_obj_filter)
+
+# Assign Identities to names
+
+View(seurat_obj_filter@meta.data)
+
+Idents(seurat_obj_filter) <- seurat_obj_filter@meta.data$CellTypeAnnotations
+
+Idents(seurat_obj_filter)
+
+DimPlot(seurat_obj_filter,reduction = 'umap', label = T)
+
+FeaturePlot(seurat_obj_filter,features = c('GPX1'),min.cutoff = 'q10',label = T)
+
+DotPlot(seurat_obj_filter, features = c('GPX1'), cols = c("blue", "red"), dot.scale = 8)
