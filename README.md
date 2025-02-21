@@ -8,7 +8,7 @@ This repository contains the R code for processing and analyzing single-cell RNA
 
 🔗 [Dataset Link](https://singlecell.broadinstitute.org/single_cell/study/SCP1749/cellular-ecology-of-m-tuberculosis-granulomas-4-week-dataset?cluster=4Week_ClusteringDF.csv\&spatialGroups=--\&annotation=donor_id--group--study\&subsample=all#study-visualize)
 
-This dataset investigates the functional role of CD8+ lymphocytes in tuberculosis. The study explores how the depletion of innate and/or adaptive CD8+ lymphocytes in macaques impacts Mycobacterium tuberculosis (Mtb) infection control, leading to increased granuloma numbers, lung inflammation, and bacterial burden.
+Functional role of CD8+ lymphocytes in tuberculosis. The study explores how the depletion of innate and/or adaptive CD8+ lymphocytes in macaques impacts Mycobacterium tuberculosis (Mtb) infection control, leading to increased granuloma numbers, lung inflammation, and bacterial burden.
 
 🔗 [Dataset Link](https://singlecell.broadinstitute.org/single_cell/study/SCP642/cd8-lymphocytes-are-critical-for-early-control-of-tuberculosis-in-macaques#study-visualize)
 
