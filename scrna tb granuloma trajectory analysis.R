@@ -102,21 +102,23 @@ DimPlot(seurat_obj_filter,reduction = "umap",label = TRUE)
 p1 <- DimPlot(seurat_obj_filter, reduction = 'umap', group.by = 'donor_id')
 p1
 
-# Monocle3
+# Trajectory analysis using Monocle3 
+
+# Convert Seurat object to Monocle object 
 
 cds <- as.cell_data_set(seurat_obj_filter)
 cds
 
-# Cell metdata
+# Observe the cell metadata of the scRNA object
 
-colData(cds)
+View(colData(cds))
 
-# Gene metadata
+# Gene metadata - View the Gene candidates across the cell samples
 
 fData(cds)
 rownames(fData(cds))[1:10]
 
-# since it misses the gene_short_name column, let's add it
+# Adding the gene short name column to cds to assign the gene names
 
 fData(cds)$gene_short_name <- rownames(fData(cds))
 
@@ -124,37 +126,53 @@ fData(cds)$gene_short_name <- rownames(fData(cds))
 counts(cds)
 
 
-# assign paritions
+# assign the data to a single partition in Monocle data to make a single trajectory
+
 reacreate.partition <- c(rep(1,length(cds@colData@rownames)))
 names(reacreate.partition) <- cds@colData@rownames
 reacreate.partition <- as.factor(reacreate.partition)
 
 cds@clusters$UMAP$partitions <- reacreate.partition
 
-
 list_cluster <- seurat_obj_filter@active.ident
 cds@clusters$UMAP$clusters <- list_cluster
-
 list_cluster
+
+# OR
+
+# Let Monocle automatically assign cluster
+
+cds <- cluster_cells(cds, reduction_method = "UMAP")  # Let Monocle3 find clusters
 
 
 # Assign UMAP coordinate - cell embeddings
 
 cds@int_colData@listData$reducedDims$UMAP <- seurat_obj_filter@reductions$umap@cell.embeddings
 
+
+View(seurat_obj_filter@reductions$umap@cell.embeddings)
+
+
 # plot
 
+cds <- learn_graph(cds, use_partition = FALSE)
+
+
 cluster.before.trajectory <- plot_cells(cds,
-                                        color_cells_by = 'CellTypeAnnotations',
+                                        color_cells_by = 'cluster',
                                         label_groups_by_cluster = FALSE,
                                         group_label_size = 5) +
   theme(legend.position = "right")
 
+cluster.names <- plot_cells(cds,
+                            color_cells_by = "CellTypeAnnotations",
+                            label_groups_by_cluster = FALSE,
+                            group_label_size = 5) +
+  scale_color_manual(values = c('red', 'blue', 'green', 'maroon', 'yellow', 'grey', 'cyan','orange','pink','coral','salmon')) +
+  theme(legend.position = "right")
 
+cluster.before.trajectory | cluster.names
 
-cluster.before.trajectory
-
-cds <- learn_graph(cds, use_partition = FALSE)
 
 plot_cells(cds,
            color_cells_by = 'CellTypeAnnotations',
@@ -163,16 +181,47 @@ plot_cells(cds,
            label_roots = FALSE,
            label_leaves = FALSE,
            group_label_size = 5)
-# ...4. Order the cells in pseudotime -------------------
 
-cds <- order_cells(cds, reduction_method = 'UMAP', root_cells = colnames(cds[,clusters(cds) == 16]))
 
-plot_cells(cds,
+# Some code tests and debugs
+
+table(clusters(cds))  # Verify presence of clusters
+
+# Get the barcodes (cell names) for cluster 5
+cluster5_cells <- colnames(cds[, clusters(cds) == 5])
+
+# Extract the cell identities (Idents) for these cells
+idents_cluster5 <- cds@colData[cluster5_cells, "CellTypeAnnotations"] 
+
+# View the unique cell types in cluster 5
+table(idents_cluster5)
+
+# See cluster wise cell presence and number
+table(clusters(cds), colData(cds)$CellTypeAnnotations)
+ 
+
+# Order the cells by setting up the root through the cluster number we extracted in the last code
+
+cds <- order_cells(cds, reduction_method = 'UMAP', root_cells = colnames(cds[,clusters(cds) == 4]))
+
+# Plot the trajectory
+
+traj_1 <- plot_cells(cds,
            color_cells_by = 'pseudotime',
            label_groups_by_cluster = FALSE,
            label_branch_points = FALSE,
            label_roots = FALSE,
            label_leaves = FALSE)
+
+traj_2 <-  plot_cells(cds,
+           color_cells_by = 'CellTypeAnnotations',
+           label_groups_by_cluster = FALSE,
+           label_branch_points = FALSE,
+           label_roots = FALSE,
+           label_leaves = FALSE,
+           group_label_size = 5)
+
+traj_1 | traj_2
 
 # cells ordered by monocle3 pseudotime
 
@@ -192,3 +241,4 @@ deg_bcells %>%
   head()
 
 FeaturePlot(seurat_obj_filter, features = c('ABCA1', 'ABCA3', 'ABCB11'))
+
