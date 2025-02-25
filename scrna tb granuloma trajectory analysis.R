@@ -232,13 +232,16 @@ data.pseudo <- as.data.frame(colData(cds))
 ggplot(data.pseudo, aes(monocle3_pseudotime, reorder(CellTypeAnnotations, monocle3_pseudotime, median), fill = CellTypeAnnotations)) +
   geom_boxplot()
 
-# ...5. Finding genes that change as a function of pseudotime --------------------
+# Extracting the DEG from the pseudotime experiment to analyse which genes involve in the overall progression as per trajectory
+
 deg_bcells <- graph_test(cds, neighbor_graph = 'principal_graph', cores = 4)
 
 deg_bcells %>% 
   arrange(q_value) %>% 
   filter(status == 'OK') %>% 
   head()
+
+# Feature plot to observe the top 3 genes obtained from the above  code
 
 FeaturePlot(seurat_obj_filter, features = c('ABCA1', 'ABCA3', 'ABCB11'))
 
